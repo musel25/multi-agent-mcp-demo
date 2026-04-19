@@ -60,8 +60,18 @@ def _get_message(response: Any) -> Any:
 
 def _get_content(message: Any) -> str:
     if isinstance(message, dict):
-        return message.get("content") or ""
-    return getattr(message, "content", "") or ""
+        return _clean_response_text(message.get("content") or "")
+    return _clean_response_text(getattr(message, "content", "") or "")
+
+
+def _clean_response_text(content: str) -> str:
+    if "</think>" in content:
+        content = content.split("</think>", maxsplit=1)[1]
+    while "<think>" in content and "</think>" in content:
+        before, rest = content.split("<think>", maxsplit=1)
+        _, after = rest.split("</think>", maxsplit=1)
+        content = before + after
+    return content.strip()
 
 
 def _get_tool_calls(message: Any) -> list[Any]:
