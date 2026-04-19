@@ -3,7 +3,7 @@
 Two Claude Code agents (Agent A and Agent B) coordinate autonomously through a shared MCP server — no orchestrator, no human input after startup. Agent A purchases a service, Agent B processes the payment, and Agent A confirms receipt.
 
 ```
-Terminal 1: MCP server (shared state)
+Terminal 1: MCP server (shared state + live status page)
 Terminal 2: Agent A (buyer)
 Terminal 3: Agent B (service provider)
 ```
@@ -13,8 +13,8 @@ Terminal 3: Agent B (service provider)
 ## Install
 
 ```bash
-# Python dependencies
-pip install "mcp[cli]" uvicorn
+# Python dependencies (uses uv — install from https://docs.astral.sh/uv if needed)
+uv add "mcp[cli]"
 
 # Claude Code CLI (if not already installed)
 npm install -g @anthropic-ai/claude-code
@@ -28,7 +28,7 @@ npm install -g @anthropic-ai/claude-code
 
 ```bash
 cd /path/to/multi-agent-mcp-demo
-python mcp_server.py
+uv run python mcp_server.py
 ```
 
 You should see:
@@ -38,6 +38,9 @@ You should see:
 INFO:     Started server process [...]
 INFO:     Uvicorn running on http://0.0.0.0:8000
 ```
+
+Open **http://localhost:8000** in your browser — you'll see a live status dashboard that auto-refreshes every 3 seconds.  
+The actual MCP endpoint used by agents is `http://localhost:8000/sse`.
 
 Leave this terminal running. Every tool call from both agents will be logged here in real time.
 
@@ -137,11 +140,11 @@ Workflow complete.
 **`mcp.run()` doesn't accept `host`/`port` kwargs:**
 Set environment variables instead before starting the server:
 ```bash
-FASTMCP_HOST=0.0.0.0 FASTMCP_PORT=8000 python mcp_server.py
+FASTMCP_HOST=0.0.0.0 FASTMCP_PORT=8000 uv run python mcp_server.py
 ```
 
 **Claude Code can't reach the MCP server:**
-Make sure the server is running *before* starting any agent session. The SSE connection is established at session start.
+Make sure the server is running *before* starting any agent session. The SSE connection is established at session start. The MCP endpoint is `/sse`, not `/` — visiting `/` in a browser shows the status dashboard, not MCP traffic.
 
 **Agent gets stuck polling:**
 The prompts allow up to 30–40 polls. If an agent times out, check Terminal 1 to see which tool calls arrived. Usually this means one agent started before the other was ready — just restart both agent sessions.
@@ -149,5 +152,5 @@ The prompts allow up to 30–40 polls. If an agent times out, check Terminal 1 t
 **`ImportError: cannot import name 'FastMCP'`:**
 Upgrade the SDK:
 ```bash
-pip install --upgrade "mcp[cli]"
+uv add --upgrade "mcp[cli]"
 ```
