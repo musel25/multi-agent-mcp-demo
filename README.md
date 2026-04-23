@@ -1,25 +1,8 @@
 # Multi-Agent MCP Demo
 
-## Streamlit Ollama Provider Consumer App
-
-This repo also includes a synchronous Streamlit app that simulates two autonomous
-AI agents using the Ollama Python SDK directly: a Consumer agent and a Provider
-agent. The Consumer calls the Provider by invoking the Provider agent loop as a
-plain Python function.
-
-## Setup
-
-1. Install Ollama: https://ollama.com/download
-2. Start Ollama: `ollama serve`
-3. Pull model: `ollama pull qwen3:4b`
-4. Install deps: `pip install -r requirements.txt`
-5. Run: `streamlit run app.py`
-
-No API key required.
-
----
-
 Two Claude Code agents (Agent A and Agent B) coordinate autonomously through a shared MCP server — no orchestrator, no human input after startup. Agent A purchases a service, Agent B processes the payment, and Agent A confirms receipt.
+
+The agents never talk directly — they exchange messages through `post_message` / `poll_messages` tools exposed by the MCP server. The server is the only shared state.
 
 ---
 
@@ -36,8 +19,6 @@ Two Claude Code agents (Agent A and Agent B) coordinate autonomously through a s
   Agent A          Agent B
   (buyer)        (seller)
 ```
-
-The agents never talk directly — they exchange messages through `post_message` / `poll_messages` tools exposed by the MCP server. The server is the only shared state.
 
 ---
 
